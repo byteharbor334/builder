@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin-Suite Builder</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='6' y1='3' x2='42' y2='46' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%238b7bff'/%3E%3Cstop offset='1' stop-color='%2334d6c8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M24 3.5 41.5 11.2V25c0 11-7.6 17.7-17.5 20.8C14.1 42.7 6.5 36 6.5 25V11.2L24 3.5Z' fill='%2311161f' stroke='url(%23g)' stroke-width='3'/%3E%3Cpath d='M26 12 16 27h7l-1 9 10-15h-7l1-9Z' fill='url(%23g)'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0a0d12; --bg2:#0c1017; --panel:#11161f; --panel2:#161c27; --line:#212a38; --line2:#2c3848;
+    --txt:#e8eef5; --dim:#8b97a8; --faint:#5b6678;
+    --accent:#8b7bff; --accent2:#34d6c8; --bad:#ff5d7a; --good:#55d98a; --warn:#ffb454;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --r:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:
+      radial-gradient(900px 500px at 12% -8%,rgba(139,123,255,.10),transparent 60%),
+      radial-gradient(900px 500px at 100% 0%,rgba(52,214,200,.07),transparent 55%),
+      var(--bg);
+    color:var(--txt);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+
+  /* header */
+  header{padding:22px 28px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    background:linear-gradient(180deg,rgba(18,23,33,.7),transparent)}
+  header .brand{flex:1;min-width:240px}
+  header h1{margin:0;font-size:22px;font-weight:800;letter-spacing:.2px}
+  header h1 .c{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{margin:5px 0 0;color:var(--dim);font-size:13px}
+  header p code{font:12px var(--mono);background:#0c1118;border:1px solid var(--line);padding:1px 6px;border-radius:6px;color:#b9c6d6}
+  .htag{display:flex;gap:8px;align-items:center}
+  .verpill{font:600 12px var(--mono);color:#cfc8ff;background:rgba(139,123,255,.13);border:1px solid rgba(139,123,255,.5);padding:4px 11px;border-radius:20px}
+  .credit{color:var(--accent);font-size:12px;font-weight:600}
+
+  /* layout */
+  .wrap{display:grid;grid-template-columns:minmax(400px,520px) 1fr;gap:22px;align-items:start;
+    max-width:1560px;margin:0 auto;padding:22px}
+  .left{min-width:0;display:flex;flex-direction:column;gap:14px}
+  .right{position:sticky;top:22px;min-width:0}
+
+  /* cards + sections */
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:16px 16px}
+  .card-h{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--txt);font-weight:800;margin-bottom:12px;display:flex;align-items:baseline;gap:8px}
+  .card-h .sub{font-size:11px;letter-spacing:.3px;text-transform:none;color:var(--faint);font-weight:500}
+  details.card>summary{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--txt);font-weight:800;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+  details.card>summary::-webkit-details-marker{display:none}
+  details.card>summary::before{content:"▸";color:var(--accent);font-size:13px;transition:.15s;display:inline-block}
+  details.card[open]>summary::before{transform:rotate(90deg)}
+  details.card>summary .sub{margin-left:auto;font-size:11px;letter-spacing:.3px;text-transform:none;color:var(--faint);font-weight:500}
+  details.card[open]{padding-bottom:16px}
+  details.card>summary{margin:-2px 0}
+  details.card[open]>summary{margin-bottom:12px}
+
+  /* inputs */
+  label.f{display:block;font-size:12px;color:var(--dim);margin:12px 0 5px;font-weight:500}
+  label.f:first-child{margin-top:0}
+  label.f .q{color:var(--faint);font-weight:400}
+  input,textarea,select{width:100%;min-width:0;background:#0b0f16;border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:9px 11px;font:13px var(--mono);transition:.12s}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,123,255,.13)}
+  input::placeholder,textarea::placeholder{color:#4d5667}
+  textarea{resize:vertical;min-height:54px;line-height:1.55}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .hint{font-size:11.5px;color:var(--faint);margin-top:6px}
+  .hint code{font:11px var(--mono);background:#0c1118;border:1px solid var(--line);padding:0 5px;border-radius:5px;color:#aebbcc}
+
+  /* custom select (kills the white native box) */
+  select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:30px;
+    background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);
+    background-position:calc(100% - 16px) 16px,calc(100% - 11px) 16px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  select option{background:#0e131b;color:var(--txt)}
+
+  /* feature checklist */
+  #feats{display:grid;gap:8px}
+  .mod{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--panel);cursor:pointer;transition:.12s}
+  .mod:hover{border-color:var(--line2);background:var(--panel2)}
+  .mod.on{border-color:rgba(139,123,255,.55);background:rgba(139,123,255,.07)}
+  .mod input{width:17px;height:17px;margin-top:2px;accent-color:var(--accent);flex:0 0 auto;cursor:pointer}
+  .mod .t{font-weight:600;font-size:13px}
+  .mod .d{color:var(--dim);font-size:12px;margin-top:2px;line-height:1.45}
+  .mod.locked{opacity:.6;cursor:default}
+
+  /* buttons */
+  button{font:600 13.5px var(--sans);border:1px solid var(--line2);background:var(--panel2);color:var(--txt);border-radius:10px;padding:10px 15px;cursor:pointer;transition:.12s;white-space:nowrap}
+  button:hover{border-color:#46566a;background:#1b2230}
+  button:active{transform:translateY(1px)}
+  button.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#08121a;border:none;font-weight:800;box-shadow:0 6px 22px rgba(80,120,200,.28)}
+  button.primary:hover{filter:brightness(1.06)}
+  button.icon{padding:10px 13px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .toolbar button{flex:1;min-width:fit-content}
+  .cfg-grid{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;margin-top:10px;align-items:center}
+  .sub-d{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+  .sub-d>summary{cursor:pointer;color:var(--dim);font-size:12px;list-style:none}
+  .sub-d>summary::-webkit-details-marker{display:none}
+  .sub-d>summary::before{content:"+ ";color:var(--accent)}
+  .sub-d[open]>summary::before{content:"– "}
+  .sub-d textarea{margin-top:8px}
+  .sub-d button{margin-top:8px;width:100%}
+
+  /* output station (right, sticky) */
+  .station{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 44px)}
+  .gen-row{display:flex;gap:10px}
+  .gen-row .primary{flex:1;font-size:15px;padding:13px}
+  .tabs{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+  .tab{padding:8px 15px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--dim);cursor:pointer;font:600 13px var(--mono)}
+  .tab:hover{border-color:var(--line2);color:var(--txt)}
+  .tab.on{color:#fff;border-color:var(--accent);background:rgba(139,123,255,.16)}
+  .badge{display:inline-block;background:rgba(52,214,200,.12);border:1px solid rgba(52,214,200,.5);color:#9af0e6;border-radius:20px;padding:3px 11px;font:600 11px var(--mono);margin-left:auto}
+  .notice{display:flex;align-items:center;gap:12px;background:rgba(255,180,84,.1);border:1px solid rgba(255,180,84,.55);color:#ffcf8f;border-radius:14px;padding:12px 16px;margin-bottom:16px;font:600 13px var(--sans)}
+  .notice button{flex-shrink:0;margin-left:auto;background:rgba(255,180,84,.18);border:1px solid rgba(255,180,84,.6);color:#ffcf8f}
+  .out{position:relative;min-height:0;flex:1;display:flex}
+  pre{flex:1;background:#080b10;border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;margin:0;
+    font:12.5px/1.55 var(--mono);color:#cfe0ee;white-space:pre;tab-size:4}
+  .pre-actions{position:absolute;top:10px;right:14px;display:flex;gap:6px;z-index:2}
+  .pre-actions button{padding:6px 12px;font-size:12px;background:rgba(18,24,34,.92);backdrop-filter:blur(4px)}
+  .empty{flex:1;color:var(--faint);padding:48px 24px;text-align:center;border:1px dashed var(--line);border-radius:12px;
+    display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center}
+  .empty b{color:var(--accent2)}
+  .deploy{font-size:11.5px;color:var(--faint);line-height:1.5;border-top:1px solid var(--line);padding-top:11px}
+  .deploy b{color:var(--dim)}
+
+  /* setup modal */
+  .modal{position:fixed;inset:0;background:rgba(4,6,10,.74);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:24px;z-index:40}
+  .modal.show{display:flex}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:780px;width:100%;max-height:86vh;overflow:auto;padding:26px}
+  .sheet h3{margin:0 0 10px;font-size:19px} .sheet .x{float:right;cursor:pointer;color:var(--dim);font-size:24px;line-height:1}
+  .sheet .x:hover{color:var(--txt)}
+  .setup-item{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:12px 0;background:var(--panel2)}
+  .setup-item h4{margin:0 0 7px;font-size:14px;color:var(--accent2)}
+  .setup-item pre{background:#080b10;font-size:12px;white-space:pre-wrap;max-height:none}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--good);color:#062012;padding:11px 20px;border-radius:11px;font-weight:700;opacity:0;transition:.2s;pointer-events:none;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:920px){
+    .wrap{grid-template-columns:1fr}
+    .right{position:static}
+    .station{max-height:none}
+    pre{max-height:60vh}
+  }
+
+  /* logo */
+  .logo{display:block;flex:0 0 auto}
+  header .logo{width:38px;height:38px}
+
+  /* access gate */
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="asg1" x1="6" y1="3" x2="42" y2="46" gradientUnits="userSpaceOnUse"><stop stop-color="#8b7bff"/><stop offset="1" stop-color="#34d6c8"/></linearGradient></defs><path d="M24 3.5 41.5 11.2V25c0 11-7.6 17.7-17.5 20.8C14.1 42.7 6.5 36 6.5 25V11.2L24 3.5Z" fill="url(#asg1)" fill-opacity=".14" stroke="url(#asg1)" stroke-width="2.2" stroke-linejoin="round"/><path d="M26 12 16 27h7l-1 9 10-15h-7l1-9Z" fill="url(#asg1)"/></svg>
+  <div class="brand">
+    <h1><span class="c">Admin-Suite</span> Builder</h1>
+    <p>Configure → <b>Generate</b> → paste <code>server.txt</code> + <code>client.txt</code> into the editor's Script tabs.</p>
+  </div>
+  <div class="htag">
+    <span class="verpill" id="verTag">v…</span>
+    <span class="credit">✦ made with love by slanik ✦</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- ───────── LEFT: configuration ───────── -->
+  <div class="left">
+
+    <div id="outdatedBanner" class="notice" style="display:none">
+      <span id="outdatedMsg"></span>
+      <button id="outdatedBtn" onclick="generate()">Regenerate now</button>
+    </div>
+
+    <input type="checkbox" id="ceOrigin" style="display:none">
+    <div class="card">
+      <div class="card-h">Config <span class="sub">save per map · share · re-use on updates</span></div>
+      <label class="f">Map name</label>
+      <input type="text" id="mapName" placeholder="e.g. Infect to Revive">
+      <div class="cfg-grid">
+        <button onclick="saveLocal()">💾 Save</button>
+        <select id="savedList" onchange="loadLocal()"><option value="">— saved configs —</option></select>
+        <button onclick="loadLocal()">Load</button>
+        <button class="icon" onclick="deleteLocal()" title="Delete selected">✕</button>
+      </div>
+      <div class="toolbar">
+        <button onclick="exportCopy()">Copy JSON</button>
+        <button onclick="exportFile()">Download .json</button>
+        <button onclick="document.getElementById('importFile').click()">Import file</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importPick(event)">
+      </div>
+      <details class="sub-d">
+        <summary>paste a config JSON to import</summary>
+        <textarea id="importBox" placeholder="paste exported JSON here, then Import"></textarea>
+        <button onclick="importPaste()">Import pasted JSON</button>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Features <span class="sub">untick to leave a feature out of the build</span></div>
+      <div id="feats"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Identity <span class="sub">who is admin / super</span></div>
+      <label class="f">Admin accountNames <span class="q">(server-authoritative)</span></label>
+      <textarea id="adminAcc" placeholder="slanik, Bob  — comma / newline / str[&quot;a&quot;,&quot;b&quot;]">slanik</textarea>
+      <label class="f">Super-admin accountNames</label>
+      <textarea id="superAcc" placeholder="slanik">slanik</textarea>
+      <label class="f">Protected accountNames <span class="q">(immune to kick/ban/kill via the panel)</span></label>
+      <textarea id="protectedAcc" placeholder="accountNames to shield from kick/ban"></textarea>
+      <label class="mod" style="margin-top:12px">
+        <input type="checkbox" id="embedNames" onchange="document.getElementById('userWrap').style.display=this.checked?'block':'none'">
+        <div><div class="t">Embed admin names in client script</div>
+        <div class="d">OFF (recommended): admin identity stays server-side only.</div></div>
+      </label>
+      <div id="userWrap" style="display:none">
+        <label class="f">Admin USERNAMES <span class="q">(client — only used if embedding; blank = reuse accounts)</span></label>
+        <textarea id="adminUser" placeholder="in-game display names"></textarea>
+      </div>
+    </div>
+
+    <details class="card">
+      <summary>Auto-ban list <span class="sub">name patterns to auto-ban</span></summary>
+      <label class="f">Ban patterns (one per line · <code>*</code> = wildcard)</label>
+      <textarea id="banPatterns" style="min-height:120px">*xatrao*
+Bambuka
+zaku123
+memexur
+RIP_UZOK
+BinaryBeast
+Ciela-
+charizard99
+Spie4
+dik_scker
+-ThunderBird-
+xatroa010
+monkey_man_4
+bambukaaaa
+r4p1t3c
+Keybi
+Gtx_1060
+strong_man_4
+dik_lover
+dildoer
+Domatici2000
+TheROOOOOOOK
+jUSTIN21908
+dik_in_ahh
+godofeclips
+eoyrdchf7G2r</textarea>
+      <div class="hint"><code>x*</code> prefix · <code>*x</code> suffix · <code>*x*</code> contains · <code>x</code> exact.</div>
+    </details>
+
+    <details class="card">
+      <summary>Map coordinates <span class="sub">jail · break room · weapon boxes</span></summary>
+      <label class="f">Infected (zombie) team number</label>
+      <input type="text" id="infectedTeam" value="2">
+      <label class="f">Rev-nuke message <span class="q">— shown after the nuker's name. Plain text only (no — or ·, they render as junk in Krunker)</span></label>
+      <input type="text" id="revnukeMsg" value="tried to rev-nuke - jailed." placeholder="tried to rev-nuke - jailed.">
+      <label class="f">Jail / revive box (X / Y / Z)</label>
+      <div class="row3"><input id="revnukeX" value="510"><input id="revnukeY" value="320"><input id="revnukeZ" value="-457"></div>
+      <label class="f">Break room box (X / Y / Z) <span class="q">— see Map setup for build steps</span></label>
+      <div class="row3"><input id="breakX" value="700"><input id="breakY" value="45"><input id="breakZ" value="700"></div>
+      <label class="f">War Machine box (X / Y / Z)</label>
+      <div class="row3"><input id="wmX" value="800"><input id="wmY" value="100"><input id="wmZ" value="800"></div>
+      <label class="f">Slimer box (X / Y / Z)</label>
+      <div class="row3"><input id="slX" value="860"><input id="slY" value="100"><input id="slZ" value="800"></div>
+      <label class="f">Weapon to give back after WM/Slimer <span class="q">— loadout primary (0 sniper, 1 ak, 3 smg, 5 shotgun…). -1 = off</span></label>
+      <input type="text" id="wmRestoreWep" value="1">
+    </details>
+
+    <details class="card">
+      <summary>Gameplay tuning <span class="sub">nuke duds · end-host</span></summary>
+      <label class="f">Kill-streak nuke duds <span class="q">— every N nukes, M give NO kills (M=0 off). Default 3 / 1.</span></label>
+      <div class="row2"><input id="nukeCycle" value="3" placeholder="every N"><input id="nukeDuds" value="1" placeholder="M duds"></div>
+      <label class="f">End-host warning before kick-all (ms)</label>
+      <input type="text" id="endDelay" value="15000">
+    </details>
+
+    <details class="card">
+      <summary>Sounds &amp; image <span class="sub">optional asset IDs</span></summary>
+      <label class="f">Nuke explosion sound</label><input id="nukeSnd" placeholder="(blank = silent)">
+      <label class="f">Jumpscare scream sound</label><input id="scareSnd" placeholder="(blank = silent)">
+      <label class="f">Jumpscare fullscreen image</label><input id="scareImg" placeholder="(blank = red flash)">
+    </details>
+
+    <details class="card">
+      <summary>Custom code <span class="sub">advanced · your own KrunkScript</span></summary>
+      <p class="q" style="margin:2px 0 10px">Raw KrunkScript appended to the END of each script (top-level). Use double quotes only — NO apostrophes (they break the lexer). Saved with the map. Your code, your risk.</p>
+      <label class="f">Extra CLIENT code <span class="q">(added to the end of client.txt)</span></label>
+      <textarea id="customClientCode" placeholder="# e.g. num MY_VAR = 1;"></textarea>
+      <label class="f">Extra SERVER code <span class="q">(added to the end of server.txt)</span></label>
+      <textarea id="customServerCode" placeholder="# e.g. action myHelper() { ... }"></textarea>
+    </details>
+
+  </div>
+
+  <!-- ───────── RIGHT: generate + output (sticky) ───────── -->
+  <div class="right">
+    <div class="station">
+      <div class="gen-row">
+        <button class="primary" onclick="generate()">⚡ Generate scripts</button>
+        <button onclick="openSetup()" title="Map setup steps">Map setup</button>
+        <button onclick="openChangelog()" title="What's new">What's new</button>
+        <button onclick="openSizeReport()" title="Character-count breakdown per feature">Size report</button>
+      </div>
+      <div class="tabs">
+        <div class="tab on" data-t="client" onclick="showTab('client')">client.txt</div>
+        <div class="tab" data-t="server" onclick="showTab('server')">server.txt</div>
+        <span id="lineInfo" class="badge" style="display:none"></span>
+      </div>
+      <div id="outWrap" class="out"><div class="empty">Set your <b>admins</b> on the left, then press <b>⚡ Generate</b>.<br>Defaults are sane — most maps only need the Identity card.</div></div>
+      <div class="deploy">Deploy: <b>Generate</b> → paste <b>client.txt</b> + <b>server.txt</b> into the editor's Script tabs → host. See <b>Map setup</b> for the trigger boxes.</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeSetup()">
+  <div class="sheet"><span class="x" onclick="closeSetup()">×</span><h3 id="modalTitle">Map setup steps</h3><div id="setupBody"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+var gen = { server:"", client:"" }, curTab = "client";
+var API_MODULES = [], API_VERSION = "";
+function today(){ var d=new Date(); function p(x){ return (x<10?"0":"")+x; } return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+function apiCall(type, extra){
+  var body=Object.assign({type:type}, extra||{});
+  return fetch("/api/action", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(data){ return {ok:r.ok, status:r.status, data:data}; }); })
+    .catch(function(){ return {ok:false, status:0, data:{error:"Network error"}}; });
+}
+function val(id){ var e=document.getElementById(id); return e?e.value:""; }
+function parseNames(raw){
+  if(!raw) return [];
+  var s=String(raw).replace(/\bstr\b/gi," ").replace(/[\[\]]/g," ");
+  return s.split(/[,\n;]+/).map(function(p){return p.replace(/["'`]/g,"").trim();}).filter(Boolean);
+}
+function renderFeats(){
+  var host=document.getElementById("feats"); host.innerHTML="";
+  API_MODULES.forEach(function(m){
+    if(m.core){
+      var c=document.createElement("label"); c.className="mod on locked"; c.title="Always included";
+      c.innerHTML='<input type="checkbox" checked disabled><div><div class="t">'+m.label+' <span style="color:var(--dim);font-weight:400">· core</span></div><div class="d">'+m.desc+'</div></div>';
+      host.appendChild(c); return;
+    }
+    var l=document.createElement("label"); l.className="mod on"; l.dataset.k=m.key;
+    var warnB = m.warn ? ' <span style="color:#ff5d7a;font-weight:800">⚠ NOT FOR REAL GAMES</span>' : '';
+    var tStyle = m.warn ? ' style="color:#ff5d7a"' : '';
+    l.innerHTML='<input type="checkbox" data-mod="'+m.key+'" checked><div><div class="t"'+tStyle+'>'+m.label+warnB+'</div><div class="d">'+m.desc+'</div></div>';
+    var cb=l.querySelector("input");
+    cb.addEventListener("change",function(){ l.classList.toggle("on",cb.checked); });
+    host.appendChild(l);
+  });
+}
+function readMods(){
+  var m={};
+  document.querySelectorAll('input[data-mod]').forEach(function(cb){ m[cb.dataset.mod]=cb.checked; });
+  return m;
+}
+function readCfg(){
+  return {
+    adminAcc:parseNames(val("adminAcc")), superAcc:parseNames(val("superAcc")), adminUser:parseNames(val("adminUser")),
+    protectedAccounts:parseNames(val("protectedAcc")),
+    banPatterns:parseNames(val("banPatterns")),
+    infectedTeam:val("infectedTeam"), revnukeMsg:val("revnukeMsg"), revnukeX:val("revnukeX"), revnukeY:val("revnukeY"), revnukeZ:val("revnukeZ"),
+    breakX:val("breakX"), breakY:val("breakY"), breakZ:val("breakZ"),
+    wmX:val("wmX"), wmY:val("wmY"), wmZ:val("wmZ"), slX:val("slX"), slY:val("slY"), slZ:val("slZ"), wmRestoreWep:val("wmRestoreWep"),
+    nukeCycle:val("nukeCycle"), nukeDuds:val("nukeDuds"), endDelay:val("endDelay"),
+    nukeSnd:val("nukeSnd"), scareSnd:val("scareSnd"), scareImg:val("scareImg"),
+    customClientCode:val("customClientCode"), customServerCode:val("customServerCode"),
+    clientAdminNames:document.getElementById("embedNames").checked,
+    mods:readMods()
+  };
+}
+function generate(){
+  var isMiekie=location.search.indexOf("miekie")!==-1;
+  var isSkypler=location.search.indexOf("skypler")!==-1;
+  var ceBox=document.getElementById("ceOrigin");
+  if((isMiekie || isSkypler) && ceBox){ ceBox.checked=true; }
+  var cfg=readCfg();
+  var _vcBox=document.getElementById("vcflagToggle");
+  cfg._q2=!!(_vcBox && _vcBox.checked);
+  cfg._noEnd=isMiekie || isSkypler || !!(ceBox && ceBox.checked);
+  var _lfBox=document.getElementById("lineFmtToggle");
+  cfg._lineFmt=isMiekie && !!(_lfBox && _lfBox.checked);
+  apiCall("generate", {cfg:cfg}).then(function(r){
+    if(!r.ok){ toast((r.data && r.data.error) || "Generate failed"); return; }
+    gen.server=r.data.server; gen.client=r.data.client;
+    hideOutdated();
+    renderOut();
+    var _crIssues=r.data.warnings||[];
+    if(_crIssues.length){ toast("Custom code warning - "+_crIssues[0]); }
+    var nm=(val("mapName")||"").trim();
+    if(nm){ try{ localStorage.setItem(LS_PREFIX+nm, JSON.stringify(exportState())); refreshSavedList(nm); if(!_crIssues.length) toast('Generated ✓ · saved "'+nm+'"'); }catch(e){ if(!_crIssues.length) toast("Generated ✓"); } }
+    else { if(!_crIssues.length) toast("Generated ✓ — set a map name to auto-save"); }
+    scanOutdated();
+  });
+}
+function renderOut(){
+  var code=gen[curTab]||"", lines=code?code.split("\n").length:0;
+  var info=document.getElementById("lineInfo"); info.style.display=code?"inline-block":"none"; info.textContent=lines+" lines";
+  var w=document.getElementById("outWrap");
+  if(!code){ w.innerHTML='<div class="empty">Nothing generated yet.</div>'; return; }
+  w.innerHTML='<div class="pre-actions"><button onclick="copyOut()">Copy</button><button onclick="download()">Download '+curTab+'.txt</button></div><pre id="codeBox"></pre>';
+  document.getElementById("codeBox").textContent=code;
+}
+function showTab(t){ curTab=t; document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("on",el.dataset.t===t);}); renderOut(); }
+function copyOut(){ navigator.clipboard.writeText(gen[curTab]||"").then(function(){toast("Copied "+curTab+".txt");}); }
+function download(){ var b=new Blob([gen[curTab]||""],{type:"text/plain"}); var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=curTab+".txt"; a.click(); URL.revokeObjectURL(a.href); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function openSetup(){
+  apiCall("setup", {cfg:readCfg()}).then(function(r){
+    if(!r.ok){ toast((r.data && r.data.error) || "Could not load setup steps"); return; }
+    var items=r.data.items||[];
+    document.getElementById("modalTitle").textContent="Map setup steps";
+    document.getElementById("setupBody").innerHTML=items.map(function(it){return '<div class="setup-item"><h4>'+esc(it.title)+'</h4><pre>'+esc(it.body)+'</pre></div>';}).join("");
+    document.getElementById("modal").classList.add("show");
+  });
+}
+function openSizeReport(){
+  toast("Analyzing...");
+  apiCall("sizeReport", {cfg:readCfg()}).then(function(r){
+    if(!r.ok){ toast((r.data && r.data.error) || "Could not analyze size"); return; }
+    var d=r.data;
+    var sorted=(d.modules||[]).slice().sort(function(a,b){return (b.server+b.client)-(a.server+a.client);});
+    var rows=sorted.map(function(m){
+      var tag=m.on?'<span style="color:#55d98a">ON</span>':'<span style="color:#8b949e">off</span>';
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12.5px;">'
+        +'<span style="flex:1">'+esc(m.label)+' '+tag+'</span>'
+        +'<span style="color:var(--dim);font:12px var(--mono)">server '+(m.server>=0?"+":"")+m.server+' &middot; client '+(m.client>=0?"+":"")+m.client+'</span>'
+        +'</div>';
+    }).join("");
+    document.getElementById("modalTitle").textContent="Size report";
+    document.getElementById("setupBody").innerHTML=
+      '<div class="setup-item"><h4>Current output</h4><pre>server.txt: '+d.full.server+' chars\nclient.txt: '+d.full.client+' chars\n\nbase (everything off): server '+d.base.server+' &middot; client '+d.base.client+'</pre></div>'
+      +'<div class="setup-item"><h4>Per-feature cost (ON row = what removing it would save; off row = what adding it would cost)</h4>'+rows+'</div>';
+    document.getElementById("modal").classList.add("show");
+  });
+}
+function closeSetup(){ document.getElementById("modal").classList.remove("show"); }
+
+var CHANGELOG=[
+  {v:"2.11.0",n:["TARGET: EVERYONE now actually applies the action to every player instead of silently doing nothing","Toggling your own history off now also hides it from the console log and from other supers' chat, not just the HISTORY tab","The last name in the super-admin list gets owner-tier power - can act on other supers (kill, kick, mute, etc.) but still cannot ban them"]},
+  {v:"2.9.0",n:["Scripts are noticeably smaller and load faster","Panel and the nuke start banner get a visual refresh"]},
+  {v:"2.8.0",n:["Fly and freecam rebuilt - smoother movement, real detached-camera freecam","END GAME now needs a confirm click, and any super can cancel a running countdown","Fake-admin trap no longer springs on spawn - only fires on a real action","Scripts ship with zero comments and less whitespace","Custom code box now warns about common ordering mistakes before you paste it in"]},
+  {v:"2.7.0",n:["Mute now persists across a rejoin, plus a guest-mute lock and a MUTE LIST panel","Ban list panel: copy the whole list in one click","Admin/super identity is hashed in the generated script, not stored as plain names","Builder page trimmed down - less explanation of how things work under the hood"]}
+];
+function openChangelog(){
+  document.getElementById("modalTitle").textContent="What's new";
+  document.getElementById("setupBody").innerHTML=CHANGELOG.map(function(e){
+    return '<div class="setup-item"><h4>v'+esc(e.v)+'</h4><pre>'+e.n.map(function(x){return "- "+esc(x);}).join("\n")+'</pre></div>';
+  }).join("");
+  document.getElementById("modal").classList.add("show");
+}
+var toastT; function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove("show");},1600); }
+
+
+var LS_PREFIX = "krunkCfg::";
+var SKIP_FIELDS = { importBox:1, importFile:1 };   
+function exportState(){
+  var fields={};
+  document.querySelectorAll('input[id], textarea[id]').forEach(function(e){
+    if(e.dataset.mod) return;
+    if(SKIP_FIELDS[e.id]) return;
+    fields[e.id] = (e.type==="checkbox") ? !!e.checked : e.value;
+  });
+  return { schema:1, builder:(API_VERSION||""), map:val("mapName"), savedAt:today(), fields:fields, mods:readMods() };
+}
+function importState(state){
+  if(!state || typeof state!=="object"){ toast("Bad config"); return false; }
+  var f = state.fields || {};
+  Object.keys(f).forEach(function(id){
+    if(SKIP_FIELDS[id]) return;
+    var e=document.getElementById(id); if(!e) return;            
+    if(e.type==="checkbox") e.checked=!!f[id]; else e.value=f[id];
+  });
+  
+  var emb=document.getElementById("embedNames"), uw=document.getElementById("userWrap");
+  if(emb && uw) uw.style.display = emb.checked ? "block" : "none";
+  var m = state.mods || {};
+  document.querySelectorAll('input[data-mod]').forEach(function(cb){
+    if(cb.dataset.mod in m){ cb.checked=!!m[cb.dataset.mod]; var lab=cb.closest('.mod'); if(lab) lab.classList.toggle('on',cb.checked); }
+  });
+  return true;
+}
+function parseJSON(raw){ try{ return JSON.parse(raw); }catch(e){ return null; } }
+function safeName(s){ return String(s||"config").replace(/[^a-z0-9_-]+/gi,"-").replace(/^-+|-+$/g,"") || "config"; }
+function exportCopy(){ navigator.clipboard.writeText(JSON.stringify(exportState(),null,2)).then(function(){toast("Config JSON copied");}); }
+function exportFile(){
+  var st=exportState(), b=new Blob([JSON.stringify(st,null,2)],{type:"application/json"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="krunk-config-"+safeName(st.map)+".json"; a.click(); URL.revokeObjectURL(a.href);
+}
+function importPaste(){
+  var st=parseJSON(val("importBox")); if(!st){ toast("Invalid JSON"); return; }
+  if(importState(st)){ document.getElementById("importBox").value=""; toast("Imported"+(st.map?" ("+st.map+")":"")+" — press Generate"); }
+}
+function importPick(ev){
+  var file=ev.target.files&&ev.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(){ var st=parseJSON(r.result); if(!st){ toast("Invalid JSON file"); return; } if(importState(st)) toast("Imported"+(st.map?" ("+st.map+")":"")+" — press Generate"); };
+  r.readAsText(file); ev.target.value="";
+}
+function saveLocal(){
+  var name=(val("mapName")||"").trim(); if(!name){ toast("Enter a map name first"); return; }
+  try{ localStorage.setItem(LS_PREFIX+name, JSON.stringify(exportState())); }catch(e){ toast("Save failed (storage full?)"); return; }
+  refreshSavedList(name); toast('Saved "'+name+'"');
+}
+function loadLocal(){
+  var name=document.getElementById("savedList").value; if(!name){ return; }   
+  var st=parseJSON(localStorage.getItem(LS_PREFIX+name)); if(!st){ toast("Could not read save"); return; }
+  if(importState(st)){
+    var mn=document.getElementById("mapName"); if(mn) mn.value=(st.map||name);
+    
+    var cur=(API_VERSION||""), was=(st.builder||"");
+    if(was && was!==cur){ showOutdated('Map "'+name+'" was built on v'+was+' — current is v'+cur+'. Regenerate to update the script.', true); }
+    else { hideOutdated(); }
+    toast('Loaded "'+name+'" — press Generate');
+  }
+}
+
+function savedBuilder(name){ try{ var st=parseJSON(localStorage.getItem(LS_PREFIX+name)); return (st&&st.builder)||""; }catch(e){ return ""; } }
+function showOutdated(msg, withBtn){ var m=document.getElementById("outdatedMsg"), b=document.getElementById("outdatedBanner"), btn=document.getElementById("outdatedBtn"); if(m) m.textContent=msg; if(btn) btn.style.display=withBtn?"":"none"; if(b) b.style.display="flex"; }
+function hideOutdated(){ var b=document.getElementById("outdatedBanner"); if(b) b.style.display="none"; }
+
+function outdatedMaps(){ var cur=(API_VERSION||""), out=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k && k.indexOf(LS_PREFIX)===0){ var nm=k.slice(LS_PREFIX.length), was=savedBuilder(nm); if(was && was!==cur) out.push(nm); } } return out.sort(); }
+
+function scanOutdated(){ var stale=outdatedMaps(); if(!stale.length){ return; } var v=(API_VERSION||""); var lbl=(stale.length===1?"1 saved map has":stale.length+" saved maps have")+" an outdated script (now v"+v+"): "+stale.join(", ")+". Load each and Regenerate."; showOutdated(lbl, false); }
+function deleteLocal(){
+  var name=document.getElementById("savedList").value; if(!name){ toast("Pick a saved config"); return; }
+  localStorage.removeItem(LS_PREFIX+name); refreshSavedList(); toast('Deleted "'+name+'"');
+}
+function refreshSavedList(sel){
+  var names=[];
+  for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k && k.indexOf(LS_PREFIX)===0) names.push(k.slice(LS_PREFIX.length)); }
+  names.sort();
+  var cur=(API_VERSION||"");
+  var s=document.getElementById("savedList");
+  s.innerHTML='<option value="">— saved configs ('+names.length+') —</option>'+names.map(function(n){
+    var was=savedBuilder(n), old=(was && was!==cur);
+    return '<option value="'+esc(n)+'">'+esc(n)+(old?'  ⚠ outdated':'')+'</option>';
+  }).join("");
+  if(sel) s.value=sel;
+}
+
+
+function _afterUnlock(){
+  renderFeats();
+  scanOutdated();
+  var _vt=document.getElementById("verTag"); if(_vt) _vt.textContent="v"+(API_VERSION||"")+" · "+today();
+  maybeShowChangelog();
+}
+var CL_SEEN_KEY="krunkChangelogSeen";
+function maybeShowChangelog(){
+  var seen=null; try{ seen=localStorage.getItem(CL_SEEN_KEY); }catch(e){}
+  if(seen===(API_VERSION||"")) return;
+  openChangelog();
+  try{ localStorage.setItem(CL_SEEN_KEY, API_VERSION||""); }catch(e){}
+}
+apiCall("modules", {}).then(function(r){
+  if(r.ok){ API_MODULES=r.data.modules||[]; API_VERSION=r.data.version||""; _afterUnlock(); }
+});
+
+refreshSavedList();
+// accepts a one-time localStorage handoff from the old github.io bridge page (see
+// github-bridge.html): only fills in keys that don't already exist here, never overwrites
+// anything already saved on this origin.
+var BRIDGE_ORIGIN="https://makovka4.github.io";
+window.addEventListener("message", function(event){
+  if(event.origin!==BRIDGE_ORIGIN) return;
+  var msg=event.data;
+  if(!msg || msg.source!=="krunk-bridge" || msg.type!=="import-storage") return;
+  var data=msg.data||{}, imported=0;
+  Object.keys(data).forEach(function(k){
+    if(localStorage.getItem(k)===null){ try{ localStorage.setItem(k, data[k]); imported++; }catch(e){} }
+  });
+  if(imported>0){ refreshSavedList(); toast("Imported "+imported+" saved item(s) from your old bookmark"); }
+});
+if(location.search.indexOf("miekie")!==-1){
+  var _vcRow=document.createElement("label");
+  _vcRow.style.cssText="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px;cursor:pointer;";
+  _vcRow.innerHTML='<input type="checkbox" id="vcflagToggle" style="width:17px;height:17px;flex:0 0 auto;accent-color:var(--accent);cursor:pointer;"><span>Add voice chat flag</span>';
+  var _genRow=document.querySelector(".gen-row");
+  if(_genRow) _genRow.parentNode.insertBefore(_vcRow,_genRow.nextSibling);
+  var _lfRow=document.createElement("label");
+  _lfRow.style.cssText="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px;cursor:pointer;";
+  _lfRow.innerHTML='<input type="checkbox" id="lineFmtToggle" style="width:17px;height:17px;flex:0 0 auto;accent-color:var(--accent);cursor:pointer;"><span>Line-formatted output (debug)</span>';
+  if(_genRow) _genRow.parentNode.insertBefore(_lfRow,_genRow.nextSibling);
+}
+
+
+</script>
+</body>
+</html>
