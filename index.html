@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin-Suite Builder.</title>
+<title>Admin-Suite Builder</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='6' y1='3' x2='42' y2='46' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%238b7bff'/%3E%3Cstop offset='1' stop-color='%2334d6c8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M24 3.5 41.5 11.2V25c0 11-7.6 17.7-17.5 20.8C14.1 42.7 6.5 36 6.5 25V11.2L24 3.5Z' fill='%2311161f' stroke='url(%23g)' stroke-width='3'/%3E%3Cpath d='M26 12 16 27h7l-1 9 10-15h-7l1-9Z' fill='url(%23g)'/%3E%3C/svg%3E">
 <style>
   :root{
@@ -302,6 +302,7 @@ eoyrdchf7G2r</textarea>
       <div class="gen-row">
         <button class="primary" onclick="generate()">⚡ Generate scripts</button>
         <button onclick="openSetup()" title="Map setup steps">Map setup</button>
+        <button onclick="openExampleMap()" title="View or download the sample map">Example map</button>
         <button onclick="openChangelog()" title="What's new">What's new</button>
         <button onclick="openSizeReport()" title="Character-count breakdown per feature">Size report</button>
       </div>
@@ -324,6 +325,7 @@ eoyrdchf7G2r</textarea>
 <script>
 "use strict";
 var gen = { server:"", client:"" }, curTab = "client";
+var exampleMapText = "";
 var API_MODULES = [], API_VERSION = "";
 function today(){ var d=new Date(); function p(x){ return (x<10?"0":"")+x; } return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
 function apiCall(type, extra){
@@ -440,6 +442,18 @@ function openSizeReport(){
     document.getElementById("modal").classList.add("show");
   });
 }
+function openExampleMap(){
+  apiCall("map", {}).then(function(r){
+    if(!r.ok){ toast((r.data && r.data.error) || "Could not load the example map"); return; }
+    exampleMapText = r.data.map || "";
+    document.getElementById("modalTitle").textContent="Example map (map.txt)";
+    document.getElementById("setupBody").innerHTML='<div class="pre-actions"><button onclick="copyMap()">Copy</button><button onclick="downloadMap()">Download map.txt</button></div><pre></pre>';
+    document.querySelector("#setupBody pre").textContent=exampleMapText;
+    document.getElementById("modal").classList.add("show");
+  });
+}
+function copyMap(){ navigator.clipboard.writeText(exampleMapText||"").then(function(){toast("Copied map.txt");}); }
+function downloadMap(){ var b=new Blob([exampleMapText||""],{type:"text/plain"}); var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="map.txt"; a.click(); URL.revokeObjectURL(a.href); }
 function closeSetup(){ document.getElementById("modal").classList.remove("show"); }
 
 var CHANGELOG=[
