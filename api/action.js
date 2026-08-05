@@ -1,5 +1,8 @@
 "use strict";
+const fs = require("fs");
+const path = require("path");
 const build = require("../lib/build.js");
+const EXAMPLE_MAP = fs.readFileSync(path.join(__dirname, "../map.txt"), "utf8");
 
 // In-memory per-instance rate limiting. Vercel serverless functions are stateless across
 // cold starts and can run on multiple concurrent instances, so this is a deterrent, not a hard
@@ -95,6 +98,10 @@ module.exports = async function handler(req, res) {
         return { key: m.key, label: m.label, on: isOn, server: serverDelta, client: clientDelta };
       });
       res.status(200).json({ base: { server: baseServer, client: baseClient }, full: { server: fullServer, client: fullClient }, modules: modules });
+      return;
+    }
+    if (body.type === "map") {
+      res.status(200).json({ map: EXAMPLE_MAP });
       return;
     }
     if (body.type === "generate") {
